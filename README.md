@@ -4,7 +4,8 @@ This is the [Final Project] for [CSE 20289 Systems Programming (Spring 2020)].
 
 ## Members
 
-- Domer McDomerson (dmcdomer@nd.edu)
+- Maggie Farrell (mfarre22@nd.edu)
+- Sara Clarin (sclarin2@nd.edu)
 
 ## Demonstration
 
