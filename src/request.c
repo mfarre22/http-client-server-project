@@ -34,6 +34,7 @@ Request * accept_request(int sfd) {
 
     /* Allocate request struct (zeroed) */
 
+
     /* Accept a client */
 
     /* Lookup client information */
