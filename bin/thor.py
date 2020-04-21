@@ -32,10 +32,10 @@ def hammer(url, throws, verbose, hid):
     for i in throws:
         start_time = time.time()
         response = requests.get(url)
-        if verbose:
-            print(response.text)
         elapsed_time = time.time() - start_time
         avg_time.append(elapsed_time)
+        if verbose:
+            print(response.text)
 
     total = 0
     for time in avg_time:
@@ -52,6 +52,7 @@ def do_hammer(args):
 def main():
     hammers = 1
     throws  = 1
+    dummy = 'f'
     verbose = False
     arguments = sys.argv[1:]
 
@@ -61,17 +62,22 @@ def main():
 
     for index, arg in enumerate(arguments):
         if arg == '-t':
+            dummy = arguments.pop(index)
             throws = arguments.pop(index + 1)
         elif arg == '-h':
+            dummy = arguments.pop(index)
             hammers = arguments.pop(index + 1)
         elif arg == '-v':
+            dummy = arguments.pop(index)
             verbose = True
         elif arg.startswith('-'):
             usage(1)
 
     # Create pool of workers and perform throws
+    hammerargs = [( arguments, throws, verbose, hid) for url in arguments]
+
     with concurrent.futures.ProcessPoolExecutor(throws) as executor:
-        result = executor.map(do_hammer, arguments)
+        result = executor.map(do_hammer, hammerargs)
 
 # Main execution
 
