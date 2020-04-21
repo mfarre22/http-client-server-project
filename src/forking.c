@@ -36,13 +36,19 @@ int forking_server(int sfd) {
             fclose(r);
         }
         else if(pid == 0) { // child
-            fclose(client_file);
+            fclose( r );
             handle_request();
             exit(EXIT_SUCCESS);
         }
-    }
+        else{               // parent -- do I need to close file also?
+            free_request(r);
+        }
+
+            
+         }
 
     /* Close server socket */
+    
     return EXIT_SUCCESS;
 }
 
