@@ -57,12 +57,14 @@ Status  handle_request(Request *r) {
  * with HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_browse_request(Request *r) {
-   // struct dirent **entries;          // UNCOMMENT (commented to compile)
-   // int n;
+   struct dirent **d;          // UNCOMMENT (commented to compile)
+   int n;
 
     /* Open a directory for reading or scanning */
+    n = scandir(".", &d, NULL, alphasort);
         
     /* Write HTTP Header with OK Status and text/html Content-Type */
+
 
     /* For each entry in directory, emit HTML list item */
 
