@@ -184,8 +184,10 @@ int parse_request_method(Request *r) {
         *query = '\0';
         *query++;
         }
-    r->
-    
+
+    r->method = strdup(method);
+    r->uri    = strdup(uri);
+    r->query  = strdup(query);
     /* Record method, uri, and query in request struct */
     debug("HTTP METHOD: %s", r->method);
     debug("HTTP URI:    %s", r->uri);
