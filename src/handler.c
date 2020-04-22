@@ -57,16 +57,27 @@ Status  handle_request(Request *r) {
  * with HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_browse_request(Request *r) {
-   struct dirent **d;          // UNCOMMENT (commented to compile)
-   int n;
+    struct dirent **entries;          // UNCOMMENT (commented to compile)
 
     /* Open a directory for reading or scanning */
-    n = scandir(".", &d, NULL, alphasort);
+    int n = scandir(".", &entries, 0, alphasort);
+    if(n < 0) {
+        debug("scandir failed: %s\n", strerror(errno));
+        return HTTP_STATUS_NOT_FOUND;
+    }
         
     /* Write HTTP Header with OK Status and text/html Content-Type */
-
+    fprintf(r->stream, "HTTP/1.0 200 OK\r\n");
+    fprintf(r->stream, "Content-Type: text/html\r\n");
+    fprintf(r->stream, "\r\n");
 
     /* For each entry in directory, emit HTML list item */
+    fprintf(r->stream, "<ol>\n");
+    for(int i = 0; i < n i++) {
+        fprintf(r->stream, "<li>%s</li>", entries[i]->d-name);
+    }
+
+    fprintf(r->stream, "</ol>\n");
 
     /* Return OK */
     return HTTP_STATUS_OK;
@@ -91,14 +102,31 @@ Status  handle_file_request(Request *r) {
     size_t nread;*/
 
     /* Open file for reading */
+    FILE *fs = fopen("spidey.html", "r");
+    if(!fs) {
+        fprintf(stderr, "error opening file: %s\n", strerror(errno));
+        return HTTP_STATUS_NOT_FOUND;
+    }
 
     /* Determine mimetype */
+    char *mimetype = determine_mimetype(fs);
 
     /* Write HTTP Headers with OK status and determined Content-Type */
+    fprintf(r->stream, "HTTP/1.0 200 OK\r\n");
+    fprintf(r->stream, "Content-Type: %s\r\n", mimetype);
+    fprintf(r->stream, "\r\n");
 
     /* Read from file and write to socket in chunks */
+    char buffer[BUFSIZ];
+    size_t nread = fread(buffer, 1, BUFSIZ, fs);
+    while(nread > 0) {
+        fwrite(buffer, 1, nread, r->stream);
+        nread = fread(buffer, 1, BUFSIZ, fs);
+    }
 
     /* Close file, deallocate mimetype, return OK */
+    fclose(fs);
+    free(mimetype);
     return HTTP_STATUS_OK;
 
 //fail:
