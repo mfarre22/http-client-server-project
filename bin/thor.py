@@ -31,7 +31,7 @@ def hammer(url, throws, verbose, hid):
 
     for i in range(throws):
         start = time.time()
-        response = requests.get(url)
+        response = requests.get(url) # Time each request
         elapsed = time.time() - start
         avg.append(elapsed)
         print(f'Hammer: {hid}, Throw:   {i}, Elapsed Time: {elapsed:0.2f}')
@@ -40,8 +40,8 @@ def hammer(url, throws, verbose, hid):
             print(response.text)
 
     total = 0
-    for time in avg:
-        total += avg[time]
+    for t in avg: # Calculate average time
+        total += t
 
     average = total / len(avg)
     print(f'Hammer: {hid}, AVERAGE   , Elapsed Time: {average:0.2f}')
@@ -56,6 +56,7 @@ def main():
     hammers = 1
     throws  = 1
     verbose = False
+    url = None
     arguments = sys.argv[1:]
 
     # Parse command line arguments
@@ -64,17 +65,19 @@ def main():
 
     for index, arg in enumerate(arguments):
         if arg == '-t':
-            arguments.pop(0)
-            throws = arguments.pop(0)
+            throws = int(arguments.pop(index + 1))
         elif arg == '-h':
-            arguments.pop(0)
-            hammers = arguments.pop(0)
+            hammers = int(arguments.pop(index + 1))
         elif arg == '-v':
+            arguments.pop(0)
             verbose = True
         elif arg.startswith('-'):
             usage(1)
 
-    url = arguments.pop(0)
+    if arguments:
+        url = arguments.pop()
+    else:
+        usage(1)
 
     # Create pool of workers and perform throws
 
@@ -84,7 +87,7 @@ def main():
         result = list(executor.map(do_hammer, args))
 
     total = 0
-    for r in result:
+    for r in result: # Calculate total average elapsed time
         total += r
 
     avg = total / len(result)
