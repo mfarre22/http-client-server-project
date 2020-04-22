@@ -28,9 +28,13 @@ Status handle_error(Request *request, Status status);
  * On error, handle_error should be used with an appropriate HTTP status code.
  **/
 Status  handle_request(Request *r) {
-    Status result;
+    Status result = HTTP_STATUS_OK;
 
     /* Parse request */
+    char buffer[BUFSIZ];
+    if ( !fgets(buffer, BUFSIZ, r->stream)){
+        return HTTP_STATUS_BAD_REQUEST;
+    }
 
     /* Determine request path */
     debug("HTTP REQUEST PATH: %s", r->path);
@@ -53,11 +57,11 @@ Status  handle_request(Request *r) {
  * with HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_browse_request(Request *r) {
-    struct dirent **entries;
-    int n;
+   // struct dirent **entries;          // UNCOMMENT (commented to compile)
+   // int n;
 
     /* Open a directory for reading or scanning */
-
+        
     /* Write HTTP Header with OK Status and text/html Content-Type */
 
     /* For each entry in directory, emit HTML list item */
@@ -78,10 +82,11 @@ Status  handle_browse_request(Request *r) {
  * HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_file_request(Request *r) {
-    FILE *fs;
+    /*
+    FILE *fs;                   //UNCOMMENT
     char buffer[BUFSIZ];
     char *mimetype = NULL;
-    size_t nread;
+    size_t nread;*/
 
     /* Open file for reading */
 
@@ -94,7 +99,7 @@ Status  handle_file_request(Request *r) {
     /* Close file, deallocate mimetype, return OK */
     return HTTP_STATUS_OK;
 
-fail:
+//fail:
     /* Close file, free mimetype, return INTERNAL_SERVER_ERROR */
     return HTTP_STATUS_INTERNAL_SERVER_ERROR;
 }
@@ -112,8 +117,8 @@ fail:
  * HTTP_STATUS_INTERNAL_SERVER_ERROR.
  **/
 Status  handle_cgi_request(Request *r) {
-    FILE *pfs;
-    char buffer[BUFSIZ];
+   // FILE *pfs;
+   // char buffer[BUFSIZ];
 
     /* Export CGI environment variables from request:
      * http://en.wikipedia.org/wiki/Common_Gateway_Interface */
@@ -138,7 +143,7 @@ Status  handle_cgi_request(Request *r) {
  * notify the user of the error.
  **/
 Status  handle_error(Request *r, Status status) {
-    const char *status_string = http_status_string(status);
+   // const char *status_string = http_status_string(status);
 
     /* Write HTTP Header */
 

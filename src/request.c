@@ -28,36 +28,38 @@ int parse_request_headers(Request *r);
  * The returned request struct must be deallocated using free_request.
  **/
 Request * accept_request(int sfd) {
-    Request *r;
+    
     struct sockaddr raddr;
-    socklen_t rlen;
+    socklen_t rlen = sizeof(raddr);
 
     /* Allocate request struct (zeroed) */
-    Request * r = calloc( 1, sizeof(Request));
-        r->headers = NULL;
-   /* if ( parse_request_headers( r ) < 0 ) {
-       debug( "Unable to parse headers");
-       return EXIT_FAILURE;
-        } */
-
+    Request *r = calloc( 1, sizeof(Request));
+    if ( !r) {
+        debug("Cannot allocate request: %s", strerror(errno));
+        return NULL;
+        }
 
     /* Accept a client */
-    FILE * client_file = accept_client( sfd);
+    r->fd = accept( sfd, &raddr, rlen);
+    if ( r->fd < 0) {
+        debug("Unable to accept: %s", strerror(errno));
+        goto fail;
+    }
 
     /* Lookup client information */
-    memset(&raddr, 0, sizeof(raddr));
-                                        // ASK BUI: do we care about the service or just host?
-    int client_num = getnameinfo( &raddr, rlen, r->host, NI_MAXHOST, NULL, 0, NI_NAMEREQD);
-    if (client_num) {
-        debug( "Couldn't get client name");
-        EXIT_FAILURE;
+                                        
+    int client_stat = getnameinfo( &raddr, rlen, r->host, sizeof(r->host), r->port, sizeof(r->port), NI_NUMERICHOST | NI_NUMERICSERV);
+
+    if (client_stat) {
+        debug( "Couldn't get client name %s", gai_strerror( client_stat));
+        goto fail;
         }
 
     /* Open socket stream */
-    FILE * newconnection = fdopen( r->fd, "w+");
-    if ( !newconnection ) {
-        fprintf( stderr, "Unable to fdopen: %s\n", strerr(errno));
-        close( r->fd);
+    r->stream = fdopen( r->fd, "w+");
+    if ( !r->stream ) {
+        fprintf( stderr, "Unable to fdopen: %s", strerr(errno));
+        goto fail;
         } 
 
     log("Accepted request from %s:%s", r->host, r->port);
@@ -87,7 +89,7 @@ void free_request(Request *r) {
     }
 
     /* Close socket or fd */
-    close ( r->rd);
+    close ( r->fd);
     /* Free allocated strings */
     if ( stream) {      free(stream);  }
     if ( method) {      free(method);  }

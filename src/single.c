@@ -19,13 +19,13 @@ int single_server(int sfd) {
     while (true) {
     	/* Accept request */
         Request *r = accept_request(sfd);
+        if ( !r ) {
+            log("Cannot accept request: %s", strerror(errno));
+            continue;               // try again if request handling fails
+        }
 
 	/* Handle request */
-        Status handlestat = handle_request(r);
-        if ( handlestat != 0){
-            debug( "Error handling file");
-            return EXIT_FAILURE;
-            }
+         handlestat = handle_request(r);
 
 	/* Free request */
         free_request(r);

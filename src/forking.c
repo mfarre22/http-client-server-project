@@ -18,12 +18,14 @@
  * handle the request.
  **/
 int forking_server(int sfd) {
+    Request *r;
+
     /* Accept and handle HTTP request */
     while (true) {
     	/* Accept request */
-        Request *r = accept_request(sfd);
+        r = accept_request(sfd);
         if(!r) {
-            continue;
+            return EXIT_FAILURE;
         }
 
 	/* Ignore children */
@@ -33,22 +35,23 @@ int forking_server(int sfd) {
 
         if(pid < 0) {
             fprintf(stderr, "Unable to fork %s\n", strerror(errno));
-            fclose(r);
+            close(r->fd);
         }
         else if(pid == 0) { // child
-            fclose( r );
-            handle_request();
+            close( r->fd );
+            handle_request( r );
             exit(EXIT_SUCCESS);
         }
-        else{               // parent -- do I need to close file also?
+        else{               
             free_request(r);
         }
 
             
          }
 
-    /* Close server socket */
-    
+    /* Close server socket */       
+        close( r->fd);
+
     return EXIT_SUCCESS;
 }
 
