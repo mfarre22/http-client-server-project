@@ -21,12 +21,18 @@ int single_server(int sfd) {
         Request *r = accept_request(sfd);
 
 	/* Handle request */
+        Status handlestat = handle_request(r);
+        if ( handlestat != 0){
+            debug( "Error handling file");
+            return EXIT_FAILURE;
+            }
 
 	/* Free request */
         free_request(r);
     }
 
     /* Close server socket */
+        fclose( sfd );
     return EXIT_SUCCESS;
 }
 

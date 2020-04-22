@@ -33,19 +33,39 @@ Request * accept_request(int sfd) {
     socklen_t rlen;
 
     /* Allocate request struct (zeroed) */
+    Request * r = calloc( 1, sizeof(Request));
+        r->headers = NULL;
+   /* if ( parse_request_headers( r ) < 0 ) {
+       debug( "Unable to parse headers");
+       return EXIT_FAILURE;
+        } */
 
 
     /* Accept a client */
+    FILE * client_file = accept_client( sfd);
 
     /* Lookup client information */
+    memset(&raddr, 0, sizeof(raddr));
+                                        // ASK BUI: do we care about the service or just host?
+    int client_num = getnameinfo( &raddr, rlen, r->host, NI_MAXHOST, NULL, 0, NI_NAMEREQD);
+    if (client_num) {
+        debug( "Couldn't get client name");
+        EXIT_FAILURE;
+        }
 
     /* Open socket stream */
+    FILE * newconnection = fdopen( r->fd, "w+");
+    if ( !newconnection ) {
+        fprintf( stderr, "Unable to fdopen: %s\n", strerr(errno));
+        close( r->fd);
+        } 
 
     log("Accepted request from %s:%s", r->host, r->port);
     return r;
 
 fail:
     /* Deallocate request struct */
+    free_request( r);
     return NULL;
 }
 
@@ -67,12 +87,24 @@ void free_request(Request *r) {
     }
 
     /* Close socket or fd */
-
+    close ( r->rd);
     /* Free allocated strings */
+    if ( stream) {      free(stream);  }
+    if ( method) {      free(method);  }
+    if ( uri ) {        free(uri);  }
+    if ( path) {        free(path); }
+    if (query) {        free(query); }
 
     /* Free headers */
-
+   /*  Header * curr = r->headers.name;
+        while( curr->next) {
+            curr = curr->next;
+            free(curr);
+        }
+        /*
+  
     /* Free request */
+    free(r);
 }
 
 /**
@@ -86,8 +118,17 @@ void free_request(Request *r) {
  **/
 int parse_request(Request *r) {
     /* Parse HTTP Request Method */
+    int http_met = parse_request_method( r );
+    if ( http_met < 0){
+        EXIT_FAILURE;
+        }
 
     /* Parse HTTP Requet Headers*/
+    int http_head = parse_request_headers( r );
+    if ( http_head < 0 ) {
+        EXIT_FAILURE;
+        }
+
     return 0;
 }
 
@@ -115,11 +156,18 @@ int parse_request_method(Request *r) {
     char *query;
 
     /* Read line from socket */
-
-    /* Parse method and uri */
+    ssize_t line1 = read( r->fd, buffer, BUFSIZ);
+    if ( line1 < 0 ) {  
+        return -1;
+        }
+    /* Parse method and uri */          // NEED TO FINISH
+    method = skip_whitespace(buffer);
+   // method = 
+    r->method = strdup(method);
 
     /* Parse query from uri */
 
+        
     /* Record method, uri, and query in request struct */
     debug("HTTP METHOD: %s", r->method);
     debug("HTTP URI:    %s", r->uri);

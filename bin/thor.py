@@ -55,6 +55,7 @@ def do_hammer(args):
 def main():
     hammers = 1
     throws  = 1
+    dummy = 'f'
     verbose = False
     url = None
     arguments = sys.argv[1:]
@@ -80,7 +81,6 @@ def main():
         usage(1)
 
     # Create pool of workers and perform throws
-
     args = [(url, throws, verbose, hid) for hid in range(hammers)]
 
     with concurrent.futures.ProcessPoolExecutor(throws) as executor:
@@ -93,7 +93,6 @@ def main():
     avg = total / len(result)
 
     print(f'TOTAL AVERAGE ELAPSED TIME: {avg:0.2f}')
-
 
 # Main execution
 

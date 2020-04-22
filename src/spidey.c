@@ -89,8 +89,11 @@ int main(int argc, char *argv[]) {
     ServerMode mode;
 
     /* Parse command line options */
+    bool command success = parse_options( argc, argv, mode );
 
     /* Listen to server socket */
+        
+
 
     /* Determine real RootPath */
     log("Listening on port %s", Port);
