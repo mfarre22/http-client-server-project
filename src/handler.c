@@ -147,19 +147,33 @@ Status  handle_file_request(Request *r) {
  * HTTP_STATUS_INTERNAL_SERVER_ERROR.
  **/
 Status  handle_cgi_request(Request *r) {
-   // FILE *pfs;
-   // char buffer[BUFSIZ];
 
     /* Export CGI environment variables from request:
      * http://en.wikipedia.org/wiki/Common_Gateway_Interface */
+    setenv();
 
     /* Export CGI environment variables from request headers */
+    setenv();
 
     /* POpen CGI Script */
+    FILE *process_stream = popen("../www/scripts/./env.h", "r");
+    if(!process_stream) {
+        fprintf(strerr, "error opening path with popen: %s\n", strerror(errno));
+        return HTTP_STATUS_INTERNAL_SERVER_ERROR;
+    }
 
     /* Copy data from popen to socket */
+    char buffer[BUFSIZ];
+    size_t nread = fread(buffer, 1, BUFSIZ, process_stream);
+
+    while(nread > 0) {
+        fwrite(buffer, 1, nread, r->stream);
+        nread = fread(buffer, 1, BUFSIZ, process_stream);
+    }
 
     /* Close popen, return OK */
+    pclose(process_stream);
+
     return HTTP_STATUS_OK;
 }
 

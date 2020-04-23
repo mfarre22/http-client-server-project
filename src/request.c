@@ -160,7 +160,6 @@ int parse_request_method(Request *r) {
     char buffer[BUFSIZ];
     char *method;
     char *uri;
-    char *query;
 
     /* Read line from socket */
     if ( !fgets( buffer, BUFSIZ, r->stream)) {
@@ -176,14 +175,14 @@ int parse_request_method(Request *r) {
         }
 
     /* Parse query from uri */
-    query = strchr( uri, '?');
-    if ( !query ) {
+    char *query = strchr(uri, '?');
+    if (!query) {
         query = "";
-        }
+    }
     else{               // advance past the ? character
         *query = '\0';
         *query++;
-        }
+    }
 
     r->method = strdup(method);
     r->uri    = strdup(uri);
@@ -234,8 +233,8 @@ int parse_request_headers(Request *r) {
 
     /* Parse headers from socket */
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
-        name = strtok( buffer, whitepace);
-        data = strtok( buffer, ':');
+        name = strtok(buffer, WHITESPACE);
+        data = strtok(buffer, ':');
 
         Header *newHeader = calloc(1, sizeof( Header));
         
