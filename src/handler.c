@@ -171,24 +171,26 @@ Status  handle_cgi_request(Request *r) {
     setenv("SERVER_PORT", Port, 1);
 
     /* Export CGI environment variables from request headers */ 
-    /* 
-    char * host = 
-    char * user_agent = 
-    setenv("HTTP_USER_AGENT", user_agent, 1);
-    setenve("HTTP_HOST", host, 1); */
     for(Header *header = r->headers; header; header = header->next) {
         if(streq(header->name, "Host")) {
             setenv("HTTP_HOST", header->name, 1);
         }
-        else if(streq(header->name, "")) {
-            setenv("HTTP_ACCEPT", , 1);
+        else if(streq(header->name, "Accept")) {
+            setenv("HTTP_ACCEPT", header->name, 1);
         }
-
-    setenv("HTTP_ACCEPT_LANGUAGE", , 1);
-    setenv("HTTP_ACCEPT_ENCODING", , 1);
-    setenv("HTTP_CONNECTION", , 1);
-    setenv("HTTP_USER_AGENT", , 1);
-
+        else if(streq(header->name, "Accept-Language")) {
+            setenv("HTTP_ACCEPT_LANGUAGE", header->name, 1);
+        }
+        else if(streq(header->name, "Accept-Encoding")) {
+            setenv("HTTP_ACCEPT_ENCODING", header->name, 1);
+        }
+        else if(streq(header->name, "Connection")) {
+            setenv("HTTP_CONNECTION", header->name, 1);
+        }
+        else if(streq(header->name, "User-Agent")) {
+            setenv("HTTP_USER_AGENT", header->name, 1);
+        }
+    }
 
     /* POpen CGI Script */
     FILE *process_stream = popen("../www/scripts/./env.h", "r");
