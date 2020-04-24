@@ -46,7 +46,7 @@ Status  handle_request(Request *r) {
     debug("HTTP REQUEST PATH: %s", r->path);
 
     /* Dispatch to appropriate request handler type based on file type */
-
+     
         // FINISH AFTER MIMETYPES LECTURE //
 
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
@@ -66,7 +66,7 @@ Status  handle_request(Request *r) {
  * with HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_browse_request(Request *r) {
-    struct dirent **entries;          // UNCOMMENT (commented to compile)
+    struct dirent **entries;          
 
     /* Open a directory for reading or scanning */
     int n = scandir(".", &entries, 0, alphasort);
@@ -104,17 +104,18 @@ Status  handle_browse_request(Request *r) {
  * HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_file_request(Request *r) {
-    /*
-    FILE *fs;                   //UNCOMMENT
+    FILE *fs;               
     char buffer[BUFSIZ];
     char *mimetype = NULL;
-    size_t nread;*/
+    size_t nread;
+     Status status;
 
     /* Open file for reading */
-    FILE *fs = fopen("spidey.html", "r");
+    fs = fopen("spidey.html", "r");
     if(!fs) {
         fprintf(stderr, "error opening file: %s\n", strerror(errno));
-        return HTTP_STATUS_NOT_FOUND;
+        status = handle_error( r, HTTP_STATUS_NOT_FOUND);
+        return status;
     }
 
     /* Determine mimetype */
@@ -156,6 +157,7 @@ Status  handle_file_request(Request *r) {
  * HTTP_STATUS_INTERNAL_SERVER_ERROR.
  **/
 Status  handle_cgi_request(Request *r) {
+    Status status;
 
     /* Export CGI environment variables from request:
      * http://en.wikipedia.org/wiki/Common_Gateway_Interface */
@@ -168,14 +170,20 @@ Status  handle_cgi_request(Request *r) {
     setenv("SCRIPT_FILENAME", r->path, 1);
     setenv("SERVER_PORT", Port, 1);
 
-    /* Export CGI environment variables from request headers */
-    setenv();
+    /* Export CGI environment variables from request headers */ 
+    /* 
+    char * host = 
+    char * user_agent = 
+    setenv("HTTP_USER_AGENT", user_agent, 1);
+    setenve("HTTP_HOST", host, 1); */
+
 
     /* POpen CGI Script */
     FILE *process_stream = popen("../www/scripts/./env.h", "r");
     if(!process_stream) {
         fprintf(strerr, "error opening path with popen: %s\n", strerror(errno));
-        return HTTP_STATUS_INTERNAL_SERVER_ERROR;
+        status = handle_error( r, HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return status;
     }
 
     /* Copy data from popen to socket */
@@ -203,13 +211,18 @@ Status  handle_cgi_request(Request *r) {
  * notify the user of the error.
  **/
 Status  handle_error(Request *r, Status status) {
-   // const char *status_string = http_status_string(status);
+    const char *status_string = http_status_string(status);
 
-    /* Write HTTP Header */
+    /* Write HTTP Header */  
+    fprintf(r->stream, "%s\r\n", http_status_string);
+    fprintf( r->stream, "Content-Type: text/html\r\n"); 
+    fprintf( r->stream, "\r\n");
 
     /* Write HTML Description of Error*/
-
+    fprintf( r->stream, "Something bad has happened. You're really screwed this time\r\n"); 
+        
     /* Return specified status */
+
     return status;
 }
 

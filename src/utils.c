@@ -63,6 +63,11 @@ char * determine_mimetype(const char *path) {
  * string must later be free'd.
  **/
 char * determine_request_path(const char *uri) {
+
+
+
+
+
     return NULL;
 }
 

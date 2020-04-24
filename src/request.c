@@ -126,14 +126,14 @@ int parse_request(Request *r) {
     int http_met = parse_request_method( r );
     if ( http_met < 0){
         debug("Unable to parse request method: %s", strerror(errno));
-        EXIT_FAILURE;
+        return -1;
         }
 
     /* Parse HTTP Requet Headers*/
     int http_head = parse_request_headers( r );
     if ( http_head < 0 ) {
         debug("Unable to parse request headers: %s", strerror(errno));
-        EXIT_FAILURE;
+        return -1;
         }
 
     return 0;
@@ -231,10 +231,14 @@ int parse_request_headers(Request *r) {
     char *name;
     char *data;
 
-    /* Parse headers from socket */
+    /* Parse headers from socket */  
+
+          //  Add a '\r\n' to the end of headers?????
+        
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
         name = strtok(buffer, WHITESPACE);
-        data = strtok(buffer, ':');
+        data = strtok(NULL, ':');
+        data = chomp(data);
 
         Header *newHeader = calloc(1, sizeof( Header));
         
