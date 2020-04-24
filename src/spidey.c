@@ -87,12 +87,20 @@ bool parse_options(int argc, char *argv[], ServerMode *mode) {
  **/
 int main(int argc, char *argv[]) {
     ServerMode mode;
+    int status;
 
     /* Parse command line options */
-    bool command success = parse_options( argc, argv, mode );
+    bool command_success = parse_options( argc, argv, mode );
+    if (!command_success) {
+        debug("Problem with command line arguments");
+        return EXIT_FAILURE;
+    }
 
     /* Listen to server socket */
-        
+     int server_fd = socket_listen(Port);
+     if (server_fd < 0){
+        return EXIT_FAILURE;
+        }
 
 
     /* Determine real RootPath */
@@ -103,6 +111,15 @@ int main(int argc, char *argv[]) {
     debug("ConcurrencyMode = %s", mode == SINGLE ? "Single" : "Forking");
 
     /* Start either forking or single HTTP server */
+    if (mode == SINGLE){
+        status = single_server( server_fd);
+        }
+    else if (mode == FORKING) {
+        status = forking_server( server_fd);
+        }
+    else{
+        return EXIT_FAILURE;
+        }
     return status;
 }
 
