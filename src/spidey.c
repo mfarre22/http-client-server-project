@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
     int status; char * ptr;
 
     /* Parse command line options */
-    bool command_success = parse_options( argc, argv, mode );
-    if (!command_success) {
+    bool command_success = parse_options( argc, argv, &mode );
+    if (command_success == false) {
         debug("Problem with command line arguments");
         return EXIT_FAILURE;
     }
