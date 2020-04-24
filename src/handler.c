@@ -32,14 +32,14 @@ Status  handle_request(Request *r) {
 
     /* Parse request */
     int request_stat = parse_request(r);
-    if ( request_stat < 0) {
+    if (request_stat < 0) {
         result = handle_error(r, HTTP_STATUS_BAD_REQUEST);
     }
     
     /* Determine request path */
     char * path = determine_request_path(r->uri);
     r->path = strdup(path);
-    if ( !r->path){
+    if (!r->path){
         result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
         }
 
@@ -176,13 +176,25 @@ Status  handle_cgi_request(Request *r) {
     char * user_agent = 
     setenv("HTTP_USER_AGENT", user_agent, 1);
     setenve("HTTP_HOST", host, 1); */
+    for(Header *header = r->headers; header; header = header->next) {
+        if(streq(header->name, "Host")) {
+            setenv("HTTP_HOST", header->name, 1);
+        }
+        else if(streq(header->name, "")) {
+            setenv("HTTP_ACCEPT", , 1);
+        }
+
+    setenv("HTTP_ACCEPT_LANGUAGE", , 1);
+    setenv("HTTP_ACCEPT_ENCODING", , 1);
+    setenv("HTTP_CONNECTION", , 1);
+    setenv("HTTP_USER_AGENT", , 1);
 
 
     /* POpen CGI Script */
     FILE *process_stream = popen("../www/scripts/./env.h", "r");
     if(!process_stream) {
         fprintf(strerr, "error opening path with popen: %s\n", strerror(errno));
-        status = handle_error( r, HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        status = handle_error(r, HTTP_STATUS_INTERNAL_SERVER_ERROR);
         return status;
     }
 
@@ -215,11 +227,11 @@ Status  handle_error(Request *r, Status status) {
 
     /* Write HTTP Header */  
     fprintf(r->stream, "%s\r\n", http_status_string);
-    fprintf( r->stream, "Content-Type: text/html\r\n"); 
-    fprintf( r->stream, "\r\n");
+    fprintf(r->stream, "Content-Type: text/html\r\n"); 
+    fprintf(r->stream, "\r\n");
 
     /* Write HTML Description of Error*/
-    fprintf( r->stream, "Something bad has happened. You're really screwed this time\r\n"); 
+    fprintf(r->stream, "Something bad has happened. You're really screwed this time\r\n"); 
         
     /* Return specified status */
 

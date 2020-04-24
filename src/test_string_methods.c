@@ -5,6 +5,7 @@
 
 int main() {
 
+
     char line1[50] = "GET /script.cgi?q=monkeys HTTP/1.0";
     char line2[50] = "Host: xavier.h4x0r.space:9898";
     char * name, uri, query, data, method;
