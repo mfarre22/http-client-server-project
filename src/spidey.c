@@ -87,7 +87,7 @@ bool parse_options(int argc, char *argv[], ServerMode *mode) {
  **/
 int main(int argc, char *argv[]) {
     ServerMode mode;
-    int status;
+    int status; char * ptr;
 
     /* Parse command line options */
     bool command_success = parse_options( argc, argv, mode );
@@ -102,8 +102,12 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
         }
 
-
     /* Determine real RootPath */
+     ptr =  realpath( RootPath, RootPath);
+    if ( !ptr) {
+        debug("Could not determine root Path: %s", strerror(errno));
+        }
+
     log("Listening on port %s", Port);
     debug("RootPath        = %s", RootPath);
     debug("MimeTypesPath   = %s", MimeTypesPath);
