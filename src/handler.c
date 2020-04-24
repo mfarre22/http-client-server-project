@@ -29,6 +29,8 @@ Status handle_error(Request *request, Status status);
  **/
 Status  handle_request(Request *r) {
     Status result = HTTP_STATUS_OK;
+    struct stat s;
+    int rd = 0,  wr = 0, ex = 0;
 
     /* Parse request */
     int request_stat = parse_request(r);
@@ -47,7 +49,19 @@ Status  handle_request(Request *r) {
 
     /* Dispatch to appropriate request handler type based on file type */
      
-        // FINISH AFTER MIMETYPES LECTURE //
+    if (stat ( r->path, &s) < 0){   
+        continue;
+        }
+
+    if ( S_ISDIR( s.st_mode) ) {
+        result = handle_browse_request(r);
+    }
+    else if ( access( r->path, X_OK) >= 0){ 
+        result = handle_cgi_request(r);
+        }
+    else if ( access ( r->path, R_OK) >= 0) {
+        result = handle_file_request(r);
+        }
 
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
 
