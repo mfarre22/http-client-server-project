@@ -31,15 +31,24 @@ Status  handle_request(Request *r) {
     Status result = HTTP_STATUS_OK;
 
     /* Parse request */
-    char buffer[BUFSIZ];
-    if ( !fgets(buffer, BUFSIZ, r->stream)){
-        return HTTP_STATUS_BAD_REQUEST;
+    int request_stat = parse_request(r);
+    if ( request_stat < 0) {
+        result = handle_error(r, HTTP_STATUS_BAD_REQUEST);
     }
-
+    
     /* Determine request path */
+    char * path = determine_request_path(r->uri);
+    r->path = strdup(path);
+    if ( !r->path){
+        result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
+        }
+
     debug("HTTP REQUEST PATH: %s", r->path);
 
     /* Dispatch to appropriate request handler type based on file type */
+
+        // FINISH AFTER MIMETYPES LECTURE //
+
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
 
     return result;
