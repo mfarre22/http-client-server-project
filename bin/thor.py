@@ -55,7 +55,6 @@ def do_hammer(args):
 def main():
     hammers = 1
     throws  = 1
-    dummy = 'f'
     verbose = False
     url = None
     arguments = sys.argv[1:]
