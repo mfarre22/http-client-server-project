@@ -150,7 +150,14 @@ Status  handle_cgi_request(Request *r) {
 
     /* Export CGI environment variables from request:
      * http://en.wikipedia.org/wiki/Common_Gateway_Interface */
-    setenv();
+    setenv("DOCUMENT_ROOT", RootPath, 1);
+    setenv("QUERY_STRING", r->query, 1);
+    setenv("REMOTE_ADDR", r->host, 1);
+    setenv("REMOTE_PORT", r->port, 1);
+    setenv("REQUEST_METHOD", r->method, 1);
+    setenv("REQUEST_URI", r->uri, 1);
+    setenv("SCRIPT_FILENAME", r->path, 1);
+    setenv("SERVER_PORT", Port, 1);
 
     /* Export CGI environment variables from request headers */
     setenv();
