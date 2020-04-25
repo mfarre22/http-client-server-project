@@ -39,34 +39,35 @@ char * determine_mimetype(const char *path) {
     FILE *fs = NULL;
 
     /* Find file extension */
-    ext = strrchr(path, '.');
+    ext = strchr(path, '.');
 
     /* Open MimeTypesPath file */
-     fs = fopen( path, 'r' );
-    if ( !fs ) {
+    fs = fopen(path, 'r');
+    if (!fs) {
         debug("Couldn't open file to parse extensions");
-        }
+    }
 
     /* Scan file for matching file extensions */
-    while( fgets(buffer, BUFSIZ, fs )){      // read line-by-line
+    while(fgets(buffer, BUFSIZ, fs)){      // read line-by-line
         
-        mimetype = strtok( buffer, WHITESPACE);
-        token = strtok( NULL, WHITESPACE);
+        mimetype = strtok(buffer, WHITESPACE);
+        token = strtok(NULL, WHITESPACE);
 
-        while( token ){         // iterate over tokens
-            token = skip_whitespace( token );
+        while(token) {         // iterate over tokens
+            token = skip_whitespace(token);
 
-            if ( streq ( ext, token )){
+            if (streq(ext, token)) {
                 return mimetype;
-                }
+            }
     
         }
+    }
 
-      fclose(fs );
+    fclose(fs);
 
-    if ( mimetype == NULL){
+    if (mimetype == NULL) {
         return DefaultMimeType;
-        }
+    }
 
     return mimetype;
 }
