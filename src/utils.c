@@ -51,15 +51,15 @@ char * determine_mimetype(const char *path) {
     while( fgets(buffer, BUFSIZ, fs )){      // read line-by-line
         
         mimetype = strtok( buffer, WHITESPACE);
+        token = strtok( NULL, WHITESPACE);
 
+        while( token ){         // iterate over tokens
+            token = skip_whitespace( token );
 
-   // ????                      NEED TO FINISH HERE
-        token = 
-
-        if ( streq ( ext,  )){
-            return mimetype;
-            }
-
+            if ( streq ( ext, token )){
+                return mimetype;
+                }
+    
         }
 
       fclose(fs );
