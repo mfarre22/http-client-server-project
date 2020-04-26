@@ -30,9 +30,10 @@ int single_server(int sfd) {
 	/* Free request */
         free_request(r);
     }
+    printf("exited while loop");
 
     /* Close server socket */
-        fclose( sfd );
+        close( sfd );
     return EXIT_SUCCESS;
 }
 

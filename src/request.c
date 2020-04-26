@@ -39,12 +39,16 @@ Request * accept_request(int sfd) {
         return NULL;
         }
 
+    printf("about to accept");
+
     /* Accept a client */
     r->fd = accept( sfd, &raddr, &rlen);
     if ( r->fd < 0) {
         debug("Unable to accept: %s", strerror(errno));
         goto fail;
     }
+
+    printf("accepted!");
 
     /* Lookup client information */
                                         
