@@ -39,16 +39,12 @@ Request * accept_request(int sfd) {
         return NULL;
         }
 
-    printf("about to accept");
-
     /* Accept a client */
     r->fd = accept( sfd, &raddr, &rlen);
     if ( r->fd < 0) {
         debug("Unable to accept: %s", strerror(errno));
         goto fail;
     }
-
-    printf("accepted!");
 
     /* Lookup client information */
                                         
@@ -95,22 +91,24 @@ void free_request(Request *r) {
     /* Close socket or fd */
     close ( r->fd);
     /* Free allocated strings */
-    if ( r->stream) {  free( r->stream);  }
+    if ( r->stream) { fclose(r->stream); }
     if ( r->method) {  free( r->method);  }
     if ( r->uri ) {  free(r->uri);  }
     if ( r->path) {  free( r->path); }
     if (r->query) {  free(r->query); }
 
     /* Free headers */
-   /*  Header * curr = r->headers;
- *      Header * temp = NULL;
- *
-        while( curr->next) {
-            temp = curr->next;
-            free(curr);
-            curr = temp;
-        }
-        */
+    /*
+    Header *curr = r->headers->next;
+    Header *temp;
+    
+    while(curr) {
+        temp = curr->next;
+        free(curr);
+        curr = temp;
+    }
+    */
+
   
     /* Free request */
     free(r);
