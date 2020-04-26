@@ -58,7 +58,7 @@ Request * accept_request(int sfd) {
     /* Open socket stream */
     r->stream = fdopen( r->fd, "w+");
     if ( !r->stream ) {
-        debug( "Unable to fdopen: %s", strerr(errno));
+        debug( "Unable to fdopen: %s", strerror(errno));
         goto fail;
         } 
 
@@ -237,10 +237,14 @@ int parse_request_headers(Request *r) {
         
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
         name = strtok(buffer, WHITESPACE);
-        data = strtok(NULL, ':');
-        data = chomp(data);
+        data = strtok(NULL, ":");
+        chomp(data);
 
         Header *newHeader = calloc(1, sizeof( Header));
+        if(!newHeader) {
+            fprintf(stderr, "error calloc newHeader: %s\n", strerror(errno));
+            goto fail;
+        }
         
         newHeader->name = strdup( name );
         newHeader->data = strdup( data );
