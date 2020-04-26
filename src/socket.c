@@ -44,7 +44,7 @@ int socket_listen(const char *port) {
         }
 
 	/* Bind socket */
-        if(bind(socket_fd, p->ai_addr, p->air_addrlen) < 0) {
+        if(bind(socket_fd, p->ai_addr, p->ai_addrlen) < 0) {
             fprintf(stderr, "Unable to bind: %s\n", strerror(errno));
             close(socket_fd);
             socket_fd = -1;
