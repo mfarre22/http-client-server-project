@@ -42,7 +42,7 @@ char * determine_mimetype(const char *path) {
     ext = strrchr(path, '.');
 
     /* Open MimeTypesPath file */
-    fs = fopen(path, 'r');
+    fs = fopen(path, "r");
     if (!fs) {
         debug("Couldn't open file to parse extensions");
     }
@@ -89,12 +89,12 @@ char * determine_mimetype(const char *path) {
  * string must later be free'd.
  **/
 char * determine_request_path(const char *uri) {
-    char resolved_path[BUFSIZ];
-
-    Rootpath = strcat(RootPath, uri);
-    char * real_path = realpath(Rootpath, resolved_path);
+    char root_plus_uri[BUFSIZ];
+          
+    sprintf( root_plus_uri, "%s%s", RootPath, uri); // concatenate Root, uri
+    char * resolved_path = realpath(root_plus_uri, NULL);  // get the realpath
     
-    if ( strcmp( real_path, resolved_path) ){
+    if ( strcmp( resolved_path,RootPath ) != 0 ){           // security check
        return NULL;
     }
     
