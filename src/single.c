@@ -25,7 +25,7 @@ int single_server(int sfd) {
         }
 
 	/* Handle request */
-         handlestat = handle_request(r);
+        handle_request(r);
 
 	/* Free request */
         free_request(r);

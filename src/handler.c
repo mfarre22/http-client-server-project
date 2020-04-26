@@ -30,7 +30,6 @@ Status handle_error(Request *request, Status status);
 Status  handle_request(Request *r) {
     Status result = HTTP_STATUS_OK;
     struct stat s;
-    int rd = 0,  wr = 0, ex = 0;
 
     /* Parse request */
     int request_stat = parse_request(r);
@@ -40,23 +39,23 @@ Status  handle_request(Request *r) {
     
     /* Determine request path */
     char * path = determine_request_path(r->uri);
-    r->path = strdup(path);
     if (!r->path){
         result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
         }
+    r->path = strdup(path);
 
     debug("HTTP REQUEST PATH: %s", r->path);
 
-    /* Dispatch to appropriate request handler type based on file type */
-     
-    if (stat ( r->path, &s) < 0){   
-        continue;
+    /* Dispatch to appropriate request handler type based on file type */   
+    if (stat ( r->path, &s) > 0){   
+
+         if ( S_ISDIR( s.st_mode) ) {
+                result = handle_browse_request(r);
+                return result;
+             }
         }
 
-    if ( S_ISDIR( s.st_mode) ) {
-        result = handle_browse_request(r);
-    }
-    else if ( access( r->path, X_OK) >= 0){ 
+     if ( access( r->path, X_OK) >= 0){ 
         result = handle_cgi_request(r);
         }
     else if ( access ( r->path, R_OK) >= 0) {
@@ -95,12 +94,12 @@ Status  handle_browse_request(Request *r) {
     fprintf(r->stream, "\r\n");
 
     /* For each entry in directory, emit HTML list item */
-    fprintf(r->stream, "<ol>\n");
-    for(int i = 0; i < n i++) {
-        fprintf(r->stream, "<li>%s</li>", entries[i]->d-name);
+    fprintf(r->stream, "<ul>\n");
+    for(int i = 0; i < n ; i++) {
+        fprintf(r->stream, "<li> <a href=%s> <\a> </li>", entries[i]->d_name);
     }
 
-    fprintf(r->stream, "</ol>\n");
+    fprintf(r->stream, "</ul>\n");
 
     /* Return OK */
     return HTTP_STATUS_OK;
@@ -133,7 +132,7 @@ Status  handle_file_request(Request *r) {
     }
 
     /* Determine mimetype */
-    char *mimetype = determine_mimetype(fs);
+    mimetype = determine_mimetype( r->path );
 
     /* Write HTTP Headers with OK status and determined Content-Type */
     fprintf(r->stream, "HTTP/1.0 200 OK\r\n");
@@ -141,8 +140,7 @@ Status  handle_file_request(Request *r) {
     fprintf(r->stream, "\r\n");
 
     /* Read from file and write to socket in chunks */
-    char buffer[BUFSIZ];
-    size_t nread = fread(buffer, 1, BUFSIZ, fs);
+     nread = fread(buffer, 1, BUFSIZ, fs);
     while(nread > 0) {
         fwrite(buffer, 1, nread, r->stream);
         nread = fread(buffer, 1, BUFSIZ, fs);
@@ -209,7 +207,7 @@ Status  handle_cgi_request(Request *r) {
     /* POpen CGI Script */
     FILE *process_stream = popen("../www/scripts/./env.h", "r");
     if(!process_stream) {
-        fprintf(strerr, "error opening path with popen: %s\n", strerror(errno));
+        debug( "error opening path with popen: %s\n", strerror(errno));
         status = handle_error(r, HTTP_STATUS_INTERNAL_SERVER_ERROR);
         return status;
     }
@@ -242,7 +240,7 @@ Status  handle_error(Request *r, Status status) {
     const char *status_string = http_status_string(status);
 
     /* Write HTTP Header */  
-    fprintf(r->stream, "%s\r\n", http_status_string);
+    fprintf(r->stream, "%s\r\n", status_string);
     fprintf(r->stream, "Content-Type: text/html\r\n"); 
     fprintf(r->stream, "\r\n");
 

@@ -30,7 +30,7 @@ int parse_request_headers(Request *r);
 Request * accept_request(int sfd) {
     
     struct sockaddr raddr;
-    socklen_t rlen = sizeof(raddr);
+    socklen_t rlen = sizeof(struct sockaddr);
 
     /* Allocate request struct (zeroed) */
     Request *r = calloc( 1, sizeof(Request));
@@ -40,7 +40,7 @@ Request * accept_request(int sfd) {
         }
 
     /* Accept a client */
-    r->fd = accept( sfd, &raddr, rlen);
+    r->fd = accept( sfd, &raddr, &rlen);
     if ( r->fd < 0) {
         debug("Unable to accept: %s", strerror(errno));
         goto fail;
@@ -58,7 +58,7 @@ Request * accept_request(int sfd) {
     /* Open socket stream */
     r->stream = fdopen( r->fd, "w+");
     if ( !r->stream ) {
-        fprintf( stderr, "Unable to fdopen: %s", strerr(errno));
+        debug( "Unable to fdopen: %s", strerr(errno));
         goto fail;
         } 
 
@@ -91,11 +91,11 @@ void free_request(Request *r) {
     /* Close socket or fd */
     close ( r->fd);
     /* Free allocated strings */
-    if ( stream) {      free(stream);  }
-    if ( method) {      free(method);  }
-    if ( uri ) {        free(uri);  }
-    if ( path) {        free(path); }
-    if (query) {        free(query); }
+    if ( r->stream) {  free( r->stream);  }
+    if ( r->method) {  free( r->method);  }
+    if ( r->uri ) {  free(r->uri);  }
+    if ( r->path) {  free( r->path); }
+    if (r->query) {  free(r->query); }
 
     /* Free headers */
    /*  Header * curr = r->headers;
@@ -106,7 +106,7 @@ void free_request(Request *r) {
             free(curr);
             curr = temp;
         }
-        /*
+        */
   
     /* Free request */
     free(r);
@@ -181,7 +181,7 @@ int parse_request_method(Request *r) {
     }
     else{               // advance past the ? character
         *query = '\0';
-        *query++;
+        query++;
     }
 
     r->method = strdup(method);
@@ -194,8 +194,8 @@ int parse_request_method(Request *r) {
 
     return 0;
 
-fail:
-    return -1;
+//fail:
+  //  return -1;
 }
 
 /**

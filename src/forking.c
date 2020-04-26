@@ -29,6 +29,7 @@ int forking_server(int sfd) {
         }
 
 	/* Ignore children */
+        signal(SIGCHLD, SIG_IGN);
 
 	/* Fork off child process to handle request */
         pid_t pid = fork();
