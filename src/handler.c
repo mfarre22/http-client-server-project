@@ -68,6 +68,7 @@ Status  handle_request(Request *r) {
 
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
 
+    free( r->path);
     return result;
 }
 
