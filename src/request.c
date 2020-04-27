@@ -240,7 +240,7 @@ int parse_request_headers(Request *r) {
 
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
         name = strtok(buffer, WHITESPACE);
-        data = strchr(NULL, ':');
+        data = strchr(buffer, ':');
         data = skip_whitespace(data);
         chomp(data);
 
