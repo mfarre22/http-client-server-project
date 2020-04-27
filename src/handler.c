@@ -42,10 +42,11 @@ Status  handle_request(Request *r) {
     /* Determine request path */
     printf("determine path");
     char * path = determine_request_path(r->uri);
+    r->path = path;
+
     if (!r->path){
         result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
         }
-    r->path = strdup(path);
 
     debug("HTTP REQUEST PATH: %s", r->path);
 
@@ -67,6 +68,7 @@ Status  handle_request(Request *r) {
 
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
 
+    free(r->path);
     return result;
 }
 
