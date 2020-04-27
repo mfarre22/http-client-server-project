@@ -236,10 +236,11 @@ int parse_request_headers(Request *r) {
     /* Parse headers from socket */  
 
           //  Add a '\r\n' to the end of headers?????
-        
+        debug("headers??");
+
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
         name = strtok(buffer, WHITESPACE);
-        data = strtok(NULL, ":");
+        data = strtok(NULL, WHITESPACE);
         chomp(data);
 
         Header *newHeader = calloc(1, sizeof( Header));
@@ -252,6 +253,7 @@ int parse_request_headers(Request *r) {
         newHeader->data = strdup( data );
         curr->next = newHeader;         // add it to the back
         curr = newHeader;
+        debug("Header: %s  %s", newHeader->name, newHeader->data);
         
         }
 
