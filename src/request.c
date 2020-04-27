@@ -228,7 +228,7 @@ int parse_request_method(Request *r) {
  *      headers.append(header)
  **/
 int parse_request_headers(Request *r) {
-    Header *curr = r->headers;
+    Header *curr = NULL;
     char buffer[BUFSIZ];
     char *name;
     char *data;
@@ -238,11 +238,28 @@ int parse_request_headers(Request *r) {
           //  Add a '\r\n' to the end of headers?????
         debug("headers??");
 
+    if(!r->stream) {
+        goto fail;
+    }
+
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
-        name = strtok(buffer, WHITESPACE);
         data = strchr(buffer, ':');
+        //name = strtok(buffer, WHITESPACE);
+        //data = strchr(buffer, ':');
+
+        if(!data) {
+            goto fail;
+        }
+
+        *data = '\0';
+        data++;
         data = skip_whitespace(data);
         chomp(data);
+
+        name = strdup(buffer);
+        if(!name) {
+            goto fail;
+        }
 
         Header *newHeader = calloc(1, sizeof(Header));
         if(!newHeader) {
@@ -250,11 +267,23 @@ int parse_request_headers(Request *r) {
             goto fail;
         }
         
-        newHeader->name = strdup( name );
+        newHeader->name = name; //strdup( name );
         newHeader->data = strdup( data );
 
-        curr->next = newHeader;         // add it to the back
+        if(!newHeader->data) {
+            goto fail;
+        }
+
+        if(!r->headers) {
+            r->headers = newHeader;
+        }
+        else {
+            curr->next = newHeader;
+        }
+
+        //curr->next = newHeader;         // add it to the back
         curr = newHeader;
+        curr->next = NULL;
 
         debug("Header: %s  %s", newHeader->name, newHeader->data);
         
