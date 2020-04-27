@@ -240,10 +240,11 @@ int parse_request_headers(Request *r) {
 
     while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
         name = strtok(buffer, WHITESPACE);
-        data = strtok(NULL, WHITESPACE);
+        data = strchr(NULL, ':');
+        data = skip_whitespace(data);
         chomp(data);
 
-        Header *newHeader = calloc(1, sizeof( Header));
+        Header *newHeader = calloc(1, sizeof(Header));
         if(!newHeader) {
             fprintf(stderr, "error calloc newHeader: %s\n", strerror(errno));
             goto fail;
@@ -251,11 +252,13 @@ int parse_request_headers(Request *r) {
         
         newHeader->name = strdup( name );
         newHeader->data = strdup( data );
+
         curr->next = newHeader;         // add it to the back
         curr = newHeader;
+
         debug("Header: %s  %s", newHeader->name, newHeader->data);
         
-        }
+    }
 
 
 #ifndef NDEBUG
