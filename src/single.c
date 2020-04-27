@@ -14,6 +14,7 @@
  * @return  Exit status of server (EXIT_SUCCESS).
  **/
 int single_server(int sfd) {
+    //Status status;
     /* Accept and handle HTTP request */
 
     while (true) {
@@ -25,10 +26,12 @@ int single_server(int sfd) {
         }
 
 	/* Handle request */
-        handle_request(r);
+        status = handle_request(r);
 
 	/* Free request */
-        free_request(r);
+        //if (status == 0 ){
+             free_request(r);
+       // }
     }
     printf("exited while loop");
 
