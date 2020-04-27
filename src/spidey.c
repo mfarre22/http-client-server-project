@@ -86,7 +86,7 @@ bool parse_options(int argc, char *argv[], ServerMode *mode) {
  * Parses command line options and starts appropriate server
  **/
 int main(int argc, char *argv[]) {
-    ServerMode mode;
+    ServerMode mode = SINGLE;
     int status; 
 
     /* Parse command line options */
