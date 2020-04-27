@@ -98,17 +98,18 @@ void free_request(Request *r) {
     if (r->query) {  free(r->query); }
 
     /* Free headers */
-    /*
-    Header *curr = r->headers->next;
+    Header *curr = r->headers;
     Header *temp;
     
     while(curr) {
         temp = curr->next;
+        free(curr->name);
+        free(curr->data);
         free(curr);
         curr = temp;
     }
-    */
 
+    free(temp);
   
     /* Free request */
     free(r);

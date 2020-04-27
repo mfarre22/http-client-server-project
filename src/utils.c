@@ -152,7 +152,7 @@ char * skip_nonwhitespace(char *s) {
 char * skip_whitespace(char *s) {
     char *p = s;
 
-    while(isspace(p) && p) {
+    while(isspace(*p) && *p) {
         p++;
     }
 
