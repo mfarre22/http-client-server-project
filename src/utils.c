@@ -90,15 +90,16 @@ char * determine_mimetype(const char *path) {
  **/
 char * determine_request_path(const char *uri) {
     char root_plus_uri[BUFSIZ];
-          
+    char resolved_path[BUFSIZ];         
+ 
     sprintf( root_plus_uri, "%s/%s", RootPath, uri); // concatenate Root, uri
-    char * resolved_path = realpath(root_plus_uri, NULL);  // get the realpath
+      realpath(root_plus_uri, resolved_path);  // get the realpath
     
-    if ( strcmp( resolved_path,RootPath ) != 0 ){           // security check
+    if ( strncmp( resolved_path ,RootPath, strlen(RootPath) ) != 0 ){           // security check
        return NULL;
     }
     
-    return resolved_path;
+    return strdup(resolved_path);
 }
 
 /**
