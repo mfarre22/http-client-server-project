@@ -26,7 +26,7 @@ int single_server(int sfd) {
         }
 
 	/* Handle request */
-        status = handle_request(r);
+         handle_request(r);
 
 	/* Free request */
         //if (status == 0 ){
