@@ -127,7 +127,7 @@ Status  handle_file_request(Request *r) {
      Status status;
 
     /* Open file for reading */
-    fs = fopen("spidey.html", "r");
+    fs = fopen( r->uri , "r");
     if(!fs) {
         fprintf(stderr, "error opening file: %s\n", strerror(errno));
         status = handle_error( r, HTTP_STATUS_NOT_FOUND);
@@ -141,6 +141,8 @@ Status  handle_file_request(Request *r) {
     fprintf(r->stream, "HTTP/1.0 200 OK\r\n");
     fprintf(r->stream, "Content-Type: %s\r\n", mimetype);
     fprintf(r->stream, "\r\n");
+
+    fprintf(r->stream, "<h1> Test test, remove from handlefilerequest</h1>");
 
     /* Read from file and write to socket in chunks */
      nread = fread(buffer, 1, BUFSIZ, fs);
@@ -248,7 +250,8 @@ Status  handle_error(Request *r, Status status) {
     fprintf(r->stream, "\r\n");
 
     /* Write HTML Description of Error*/
-    fprintf(r->stream, "Something bad has happened. You're really screwed this time\r\n"); 
+    fprintf( r->stream, " <h1>%s </h1>\r\n", status_string);
+    fprintf(r->stream, "Something bad has happened. You're really screwed this time </body> \r\n"); 
         
     /* Return specified status */
 
