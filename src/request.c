@@ -98,19 +98,15 @@ void free_request(Request *r) {
     if (r->query) {  free(r->query); }
 
     /* Free headers */
-   /* Header *curr = r->headers;
+    Header *curr = r->headers;
     Header *temp;
     
-    while(curr) { */
-    Header * temp = NULL;
-for (Header *curr = r->headers; curr; curr = temp) {
-        if (curr->next)
-            temp = curr->next;  // this way on last run, temp within range
-
+    while(curr) {
+        temp = curr->next;
         free(curr->name);
         free(curr->data);
         free(curr);
-        //curr = temp;
+        curr = temp;
     }
 
     //free(temp);       //temp pointer memory should be deleted already
