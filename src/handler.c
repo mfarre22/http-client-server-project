@@ -237,7 +237,7 @@ Status  handle_cgi_request(Request *r) {
 
     /* POpen CGI Script */
     debug("handle cgi process: about to popen");
-    FILE *process_stream = popen("../www/scripts/./env.h", "r");
+    FILE *process_stream = popen(r->path, "r");
     if(!process_stream) {
         debug("error opening path with popen: %s\n", strerror(errno));
         status = handle_error(r, HTTP_STATUS_INTERNAL_SERVER_ERROR);
