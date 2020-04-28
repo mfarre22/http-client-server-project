@@ -43,25 +43,32 @@ Status  handle_request(Request *r) {
 
     if (!r->path){
         result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
-        }
+    }
 
     debug("HTTP REQUEST PATH: %s", r->path);
 
-    /* Dispatch to appropriate request handler type based on file type */   
-    if (stat ( r->path, &s) == 0){   
+    /* Dispatch to appropriate request handler type based on file type */ 
+    debug("r->path is: %s", r->path); 
+    if(stat < 0) {
+       //error
+    }
 
+    else if (stat ( r->path, &s) == 0){   
+        debug("browse request");
          if ( S_ISDIR( s.st_mode) ) {
                 result = handle_browse_request(r);
                 return result;
              }
-        }
+    }
 
-     if ( access( r->path, X_OK) >= 0){ 
+    else if (access( r->path, X_OK) == 0){ 
+        debug("cgi");
         result = handle_cgi_request(r);
-        }
-    else if ( access ( r->path, R_OK) >= 0) {
+    }
+    else if (access ( r->path, R_OK) == 0) {
+        debug("file");
         result = handle_file_request(r);
-        }
+    }
 
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
 
@@ -98,7 +105,7 @@ Status  handle_browse_request(Request *r) {
     /* For each entry in directory, emit HTML list item */
     fprintf(r->stream, "<ul>\n");
     for(int i = 0; i < n ; i++) {
-        fprintf(r->stream, "<li> <a href=%s> <\a> </li>", entries[i]->d_name);
+        fprintf(r->stream, "<li> <a href=%s> %s </a> </li>", entries[i]->d_name, entries[i]->d_name);
     }
 
     fprintf(r->stream, "</ul>\n");
@@ -119,6 +126,9 @@ Status  handle_browse_request(Request *r) {
  * HTTP_STATUS_NOT_FOUND.
  **/
 Status  handle_file_request(Request *r) {
+
+    debug("handle_file_request");
+
     FILE *fs;               
     char buffer[BUFSIZ];
     char *mimetype = NULL;
@@ -126,7 +136,7 @@ Status  handle_file_request(Request *r) {
      Status status;
 
     /* Open file for reading */
-    fs = fopen( r->uri , "r");
+    fs = fopen(r->path, "r");
     if(!fs) {
         fprintf(stderr, "error opening file: %s\n", strerror(errno));
         status = handle_error( r, HTTP_STATUS_NOT_FOUND);
@@ -137,7 +147,7 @@ Status  handle_file_request(Request *r) {
     mimetype = determine_mimetype( r->path );
 
     /* Write HTTP Headers with OK status and determined Content-Type */
-    fprintf(r->stream, "HTTP/1.0 200 OK\r\n");
+    fprintf(r->stream, "HTTP/1.0 %s \r\n", http_status_string(HTTP_STATUS_OK));
     fprintf(r->stream, "Content-Type: %s\r\n", mimetype);
     fprintf(r->stream, "\r\n");
 

@@ -39,7 +39,7 @@ int forking_server(int sfd) {
             close(r->fd);
         }
         else if(pid == 0) { // child
-            close( r->fd );
+            close(sfd);
             handle_request( r );
             exit(EXIT_SUCCESS);
         }
