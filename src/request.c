@@ -34,14 +34,14 @@ Request * accept_request(int sfd) {
 
     /* Allocate request struct (zeroed) */
     Request *r = calloc( 1, sizeof(Request));
-    if ( !r) {
+    if (!r) {
         debug("Cannot allocate request: %s", strerror(errno));
         return NULL;
-        }
+    }
 
     /* Accept a client */
     r->fd = accept( sfd, &raddr, &rlen);
-    if ( r->fd < 0) {
+    if (r->fd < 0) {
         debug("Unable to accept: %s", strerror(errno));
         goto fail;
     }
@@ -53,21 +53,21 @@ Request * accept_request(int sfd) {
     if (client_stat) {
         debug( "Couldn't get client name %s", gai_strerror( client_stat));
         goto fail;
-        }
+    }
 
     /* Open socket stream */
-    r->stream = fdopen( r->fd, "w+");
-    if ( !r->stream ) {
+    r->stream = fdopen(r->fd, "w+");
+    if (!r->stream ) {
         debug( "Unable to fdopen: %s", strerror(errno));
         goto fail;
-        } 
+    } 
 
     log("Accepted request from %s:%s", r->host, r->port);
     return r;
 
 fail:
     /* Deallocate request struct */
-    free_request( r);
+    free_request(r);
     return NULL;
 }
 
@@ -88,18 +88,17 @@ void free_request(Request *r) {
     	return;
     }
 
-    /* Close socket or fd */
-    //close (r->fd);
-    /* Free allocated strings */
+    /* Close socket or fd and free allocated strings */
     if (r->stream) { 
         fclose(r->stream); 
     }
+
     else {
         close(r->fd);
     }
-    if (r->method) {  free( r->method);  }
-    if (r->uri ) {  free(r->uri);  }
-    if (r->path) {  free( r->path); }
+    if (r->method) {  free(r->method);  }
+    if (r->uri) {  free(r->uri);  }
+    if (r->path) {  free(r->path); }
     if (r->query) {  free(r->query); }
 
     /* Free headers */
@@ -128,19 +127,20 @@ void free_request(Request *r) {
  * headers, returning 0 on success, and -1 on error.
  **/
 int parse_request(Request *r) {
+
     /* Parse HTTP Request Method */
-    int http_met = parse_request_method( r );
-    if ( http_met < 0){
+    int http_met = parse_request_method(r);
+    if (http_met < 0){
         debug("Unable to parse request method: %s", strerror(errno));
         return -1;
-        }
+    }
 
     /* Parse HTTP Requet Headers*/
-    int http_head = parse_request_headers( r );
-    if ( http_head < 0 ) {
+    int http_head = parse_request_headers(r);
+    if (http_head < 0 ) {
         debug("Unable to parse request headers: %s", strerror(errno));
         return -1;
-        }
+    }
 
     return 0;
 }
@@ -168,23 +168,24 @@ int parse_request_method(Request *r) {
     char *uri;
 
     /* Read line from socket */
-    if ( !fgets( buffer, BUFSIZ, r->stream)) {
+    if (!fgets(buffer, BUFSIZ, r->stream)) {
         return HTTP_STATUS_BAD_REQUEST;
-        }    
+    }    
 
     /* Parse method and uri */      
     method = strtok( buffer, WHITESPACE);
-    uri = strtok( NULL, WHITESPACE);
+    uri = strtok(NULL, WHITESPACE);
 
-    if ( !method || !uri ) {
+    if (!method || !uri) {
         return HTTP_STATUS_BAD_REQUEST;
-        }
+    }
 
     /* Parse query from uri */
     char *query = strchr(uri, '?');
     if (!query) {
         query = "";
     }
+
     else{               // advance past the ? character
         *query = '\0';
         query++;
@@ -193,6 +194,7 @@ int parse_request_method(Request *r) {
     r->method = strdup(method);
     r->uri    = strdup(uri);
     r->query  = strdup(query);
+
     /* Record method, uri, and query in request struct */
     debug("HTTP METHOD: %s", r->method);
     debug("HTTP URI:    %s", r->uri);
@@ -200,8 +202,6 @@ int parse_request_method(Request *r) {
 
     return 0;
 
-//fail:
-  //  return -1;
 }
 
 /**
@@ -243,7 +243,7 @@ int parse_request_headers(Request *r) {
         goto fail;
     }
 
-    while( fgets( buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
+    while(fgets(buffer, BUFSIZ, r->stream) && strlen(buffer) > 2){
         data = strchr(buffer, ':');
 
         if(!data) {
@@ -267,7 +267,7 @@ int parse_request_headers(Request *r) {
         }
         
         newHeader->name = name;
-        newHeader->data = strdup( data );
+        newHeader->data = strdup(data);
 
         if(!newHeader->data) {
             goto fail;
@@ -276,6 +276,7 @@ int parse_request_headers(Request *r) {
         if(!r->headers) {
             r->headers = newHeader;
         }
+
         else {
             curr->next = newHeader;
         }
