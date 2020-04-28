@@ -42,7 +42,7 @@ char * determine_mimetype(const char *path) {
     ext = strrchr(path, '.');
 
     /* Open MimeTypesPath file */
-    fs = fopen(path, "r");
+    fs = fopen(MimeTypesPath, "r");
     if (!fs) {
         debug("Couldn't open file to parse extensions");
     }
@@ -54,6 +54,8 @@ char * determine_mimetype(const char *path) {
         token = strtok(NULL, WHITESPACE);
 
         while(token) {         // iterate over tokens
+            debug("inside while loop");
+            token = strtok(NULL, WHITESPACE);
             token = skip_whitespace(token);
 
             if (streq(ext, token)) {
@@ -137,7 +139,7 @@ const char * http_status_string(Status status) {
 char * skip_nonwhitespace(char *s) {
     char *p = s;
 
-    while(!isspace(*p) && *p) {
+    while(*p && !isspace(*p)) {
         p++;
     }
 
@@ -153,7 +155,7 @@ char * skip_nonwhitespace(char *s) {
 char * skip_whitespace(char *s) {
     char *p = s;
 
-    while(isspace(*p) && *p) {
+    while(*p && isspace(*p)) {
         p++;
     }
 

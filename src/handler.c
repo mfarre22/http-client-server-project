@@ -144,12 +144,14 @@ Status  handle_file_request(Request *r) {
     Status status;
 
     /* Open file for reading */
+    debug("about to open file");
     fs = fopen(r->path, "r");
     if(!fs) {
         fprintf(stderr, "error opening file: %s\n", strerror(errno));
         status = handle_error(r, HTTP_STATUS_NOT_FOUND);
         return status;
     }
+    debug("opened file");
 
     /* Determine mimetype */
     debug("determining mimetype\n");
@@ -165,13 +167,16 @@ Status  handle_file_request(Request *r) {
 
     /* Read from file and write to socket in chunks */
     nread = fread(buffer, 1, BUFSIZ, fs);
+    debug("about to read from file");
     while(nread > 0) {
         fwrite(buffer, 1, nread, r->stream);
         nread = fread(buffer, 1, BUFSIZ, fs);
     }
+    debug("after reading from file");
 
     /* Close file, deallocate mimetype, return OK */
     fclose(fs);
+    debug("after closing file");
     free(mimetype);
     return HTTP_STATUS_OK;
 
