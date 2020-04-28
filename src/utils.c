@@ -137,7 +137,7 @@ const char * http_status_string(Status status) {
 char * skip_nonwhitespace(char *s) {
     char *p = s;
 
-    while(!isspace(p) && p) {
+    while(!isspace(*p) && *p) {
         p++;
     }
 
