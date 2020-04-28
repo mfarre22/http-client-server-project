@@ -152,7 +152,9 @@ Status  handle_file_request(Request *r) {
     }
 
     /* Determine mimetype */
+    debug("determining mimetype\n");
     mimetype = determine_mimetype( r->path );
+    debug("mimetype: %s", mimetype);
 
     /* Write HTTP Headers with OK status and determined Content-Type */
     fprintf(r->stream, "HTTP/1.0 %s\r\n", http_status_string(HTTP_STATUS_OK));
@@ -226,6 +228,7 @@ Status  handle_cgi_request(Request *r) {
     }
 
     /* POpen CGI Script */
+    debug("handle cgi process: about to popen");
     FILE *process_stream = popen("../www/scripts/./env.h", "r");
     if(!process_stream) {
         debug("error opening path with popen: %s\n", strerror(errno));
@@ -237,6 +240,7 @@ Status  handle_cgi_request(Request *r) {
     char buffer[BUFSIZ];
     size_t nread = fread(buffer, 1, BUFSIZ, process_stream);
 
+    debug(" CGI: reading from process stream\n");
     while(nread > 0) {
         fwrite(buffer, 1, nread, r->stream);
         nread = fread(buffer, 1, BUFSIZ, process_stream);
@@ -261,6 +265,8 @@ Status  handle_error(Request *r, Status status) {
     const char *status_string = http_status_string(status);
 
     /* Write HTTP Header */  
+    debug("Handling error\n");
+
     fprintf(r->stream, "%s\r\n", status_string);
     fprintf(r->stream, "Content-Type: text/html\r\n"); 
     fprintf(r->stream, "\r\n");
