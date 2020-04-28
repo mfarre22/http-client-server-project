@@ -89,12 +89,17 @@ void free_request(Request *r) {
     }
 
     /* Close socket or fd */
-    close ( r->fd);
+    //close (r->fd);
     /* Free allocated strings */
-    if ( r->stream) { fclose(r->stream); }
-    if ( r->method) {  free( r->method);  }
-    if ( r->uri ) {  free(r->uri);  }
-    if ( r->path) {  free( r->path); }
+    if (r->stream) { 
+        fclose(r->stream); 
+    }
+    else {
+        close(r->fd);
+    }
+    if (r->method) {  free( r->method);  }
+    if (r->uri ) {  free(r->uri);  }
+    if (r->path) {  free( r->path); }
     if (r->query) {  free(r->query); }
 
     /* Free headers */
@@ -109,8 +114,6 @@ void free_request(Request *r) {
         curr = temp;
     }
 
-    //free(temp);       //temp pointer memory should be deleted already
-  
     /* Free request */
     free(r);
 }

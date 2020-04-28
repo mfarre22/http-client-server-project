@@ -51,7 +51,7 @@ Status  handle_request(Request *r) {
     debug("HTTP REQUEST PATH: %s", r->path);
 
     /* Dispatch to appropriate request handler type based on file type */   
-    if (stat ( r->path, &s) > 0){   
+    if (stat ( r->path, &s) == 0){   
 
          if ( S_ISDIR( s.st_mode) ) {
                 result = handle_browse_request(r);
@@ -87,7 +87,7 @@ Status  handle_browse_request(Request *r) {
     struct dirent **entries;          
 
     /* Open a directory for reading or scanning */
-    int n = scandir(".", &entries, 0, alphasort);
+    int n = scandir(r->path, &entries, 0, alphasort);
     if(n < 0) {
         debug("scandir failed: %s\n", strerror(errno));
         return HTTP_STATUS_NOT_FOUND;
