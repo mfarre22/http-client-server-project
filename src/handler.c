@@ -32,15 +32,12 @@ Status  handle_request(Request *r) {
     struct stat s;
 
     /* Parse request */
-    printf("about to parse request");
     int request_stat = parse_request(r);
     if (request_stat < 0) {
         result = handle_error(r, HTTP_STATUS_BAD_REQUEST);
     }
-    printf("after parsing request");
     
     /* Determine request path */
-    printf("determine path");
     char * path = determine_request_path(r->uri);
     r->path = path;
 
