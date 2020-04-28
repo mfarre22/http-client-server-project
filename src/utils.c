@@ -37,30 +37,44 @@ char * determine_mimetype(const char *path) {
     char *token;
     char buffer[BUFSIZ];
     FILE *fs = NULL;
+    char *def = "text/html";
 
     /* Find file extension */
     ext = strrchr(path, '.');
+    if(!ext) {
+        return DefaultMimeType;
+    }
 
     /* Open MimeTypesPath file */
     fs = fopen(MimeTypesPath, "r");
     if (!fs) {
         debug("Couldn't open file to parse extensions");
+        return DefaultMimeType;
     }
 
     /* Scan file for matching file extensions */
-    while(fgets(buffer, BUFSIZ, fs)){      // read line-by-line
+    while(fgets(buffer, BUFSIZ, fs) && strlen(buffer) > 2){      // read line-by-line
         
         mimetype = strtok(buffer, WHITESPACE);
+        ext = skip_whitespace(ext);
         token = strtok(NULL, WHITESPACE);
 
         while(token) {         // iterate over tokens
             debug("inside while loop");
-            token = strtok(NULL, WHITESPACE);
-            token = skip_whitespace(token);
 
+            if(streq(token, ext)) {
+                mimetype = def;
+                return mimetype;
+            }
+            
+            token = strtok(NULL, WHITESPACE);
+            //token = skip_whitespace(token);
+
+            /*
             if (streq(ext, token)) {
                 return mimetype;
             }
+            */
     
         }
     }

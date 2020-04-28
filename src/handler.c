@@ -177,7 +177,10 @@ Status  handle_file_request(Request *r) {
     /* Close file, deallocate mimetype, return OK */
     fclose(fs);
     debug("after closing file");
-    free(mimetype);
+    if(mimetype) {
+        free(mimetype);
+    }
+
     return HTTP_STATUS_OK;
 
     /* Close file, free mimetype, return INTERNAL_SERVER_ERROR */
