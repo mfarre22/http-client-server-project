@@ -169,7 +169,7 @@ int parse_request_method(Request *r) {
 
     /* Read line from socket */
     if (!fgets(buffer, BUFSIZ, r->stream)) {
-        return HTTP_STATUS_BAD_REQUEST;
+        return -1;
     }    
 
     /* Parse method and uri */      
@@ -177,7 +177,7 @@ int parse_request_method(Request *r) {
     uri = strtok(NULL, WHITESPACE);
 
     if (!method || !uri) {
-        return HTTP_STATUS_BAD_REQUEST;
+        return -1;
     }
 
     /* Parse query from uri */

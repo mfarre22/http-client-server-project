@@ -35,6 +35,7 @@ Status  handle_request(Request *r) {
     int request_stat = parse_request(r);
     if (request_stat < 0) {
         result = handle_error(r, HTTP_STATUS_BAD_REQUEST);
+        return result;
     }
     
     /* Determine request path */
@@ -43,14 +44,17 @@ Status  handle_request(Request *r) {
 
     if (!r->path){
         result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
+        return result;
     }
 
     debug("HTTP REQUEST PATH: %s", r->path);
 
     /* Dispatch to appropriate request handler type based on file type */ 
     debug("r->path is: %s", r->path); 
-    if(stat < 0) {
+    if(stat(r->path, &s) < 0) {
        fprintf(stderr, "stat failed: %s\n", strerror(errno));
+       result = handle_error(r, HTTP_STATUS_NOT_FOUND);
+       return result;
     }
 
     else if (stat (r->path, &s) == 0){   
@@ -106,12 +110,16 @@ Status  handle_browse_request(Request *r) {
     /* For each entry in directory, emit HTML list item */
     fprintf(r->stream, "<ul>\n");
     for(int i = 0; i < n ; i++) {
+        if(streq(entries[i]->d_name, ".")) {
+            continue;
+        }
+
         if(streq(r->uri, "/")) {
-            fprintf(r->stream, "<li> <a href=/%s> %s </a> </li>", entries[i]->d_name, entries[i]->d_name);
+            fprintf(r->stream, "<li> <a href=\"/%s\"> %s </a> </li>\n", entries[i]->d_name, entries[i]->d_name);
         }
     
         else {
-            fprintf(r->stream, "<li> <a href=%s/%s> %s </a> </li>", r->uri, entries[i]->d_name, entries[i]->d_name);
+            fprintf(r->stream, "<li> <a href=\"%s/%s\"> %s </a> </li>\n", r->uri, entries[i]->d_name, entries[i]->d_name);
         }
 
     }
@@ -204,14 +212,30 @@ Status  handle_cgi_request(Request *r) {
 
     /* Export CGI environment variables from request:
      * http://en.wikipedia.org/wiki/Common_Gateway_Interface */
-    setenv("DOCUMENT_ROOT", RootPath, 1);
-    setenv("QUERY_STRING", r->query, 1);
-    setenv("REMOTE_ADDR", r->host, 1);
-    setenv("REMOTE_PORT", r->port, 1);
-    setenv("REQUEST_METHOD", r->method, 1);
-    setenv("REQUEST_URI", r->uri, 1);
-    setenv("SCRIPT_FILENAME", r->path, 1);
-    setenv("SERVER_PORT", Port, 1);
+    if(RootPath) {
+        setenv("DOCUMENT_ROOT", RootPath, 1);
+    }
+    if(r->query) {
+        setenv("QUERY_STRING", r->query, 1);
+    }
+    if(r->host) {
+        setenv("REMOTE_ADDR", r->host, 1);
+    }
+    if(r->port) {
+        setenv("REMOTE_PORT", r->port, 1);
+    }
+    if(r->method) {
+        setenv("REQUEST_METHOD", r->method, 1);
+    }
+    if(r->uri) {
+        setenv("REQUEST_URI", r->uri, 1);
+    }
+    if(r->path) {
+        setenv("SCRIPT_FILENAME", r->path, 1);
+    }
+    if(Port) {
+        setenv("SERVER_PORT", Port, 1);
+    }
 
     /* Export CGI environment variables from request headers */ 
     for(Header *header = r->headers; header; header = header->next) {
@@ -275,7 +299,7 @@ Status  handle_error(Request *r, Status status) {
     /* Write HTTP Header */  
     debug("Handling error\n");
 
-    fprintf(r->stream, "%s\r\n", status_string);
+    fprintf(r->stream, "HTTP/1.0 %s\r\n", status_string);
     fprintf(r->stream, "Content-Type: text/html\r\n"); 
     fprintf(r->stream, "\r\n");
 
