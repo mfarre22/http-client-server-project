@@ -14,29 +14,27 @@
  * @return  Exit status of server (EXIT_SUCCESS).
  **/
 int single_server(int sfd) {
-    //Status status;
-    /* Accept and handle HTTP request */
 
+    /* Accept and handle HTTP request */
     while (true) {
+
     	/* Accept request */
         Request *r = accept_request(sfd);
-        if ( !r ) {
+        if (!r) {
             log("Cannot accept request: %s", strerror(errno));
-            continue;               // try again if request handling fails
+            continue;
         }
 
 	/* Handle request */
-         handle_request(r);
+        handle_request(r);
 
 	/* Free request */
-        //if (status == 0 ){
-             free_request(r);
-       // }
+        free_request(r);
     }
-    printf("exited while loop");
 
     /* Close server socket */
-        close( sfd );
+    close(sfd);
+
     return EXIT_SUCCESS;
 }
 

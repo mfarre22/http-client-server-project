@@ -33,34 +33,33 @@ Request * accept_request(int sfd) {
     socklen_t rlen = sizeof(struct sockaddr);
 
     /* Allocate request struct (zeroed) */
-    Request *r = calloc( 1, sizeof(Request));
+    Request *r = calloc(1, sizeof(Request));
     if (!r) {
         debug("Cannot allocate request: %s", strerror(errno));
         return NULL;
     }
 
     /* Accept a client */
-    r->fd = accept( sfd, &raddr, &rlen);
+    r->fd = accept(sfd, &raddr, &rlen);
     if (r->fd < 0) {
         debug("Unable to accept: %s", strerror(errno));
         goto fail;
     }
 
-    /* Lookup client information */
-                                        
+    /* Lookup client information */                     
     int client_stat = getnameinfo( &raddr, rlen, r->host, sizeof(r->host), r->port, sizeof(r->port), NI_NUMERICHOST | NI_NUMERICSERV);
 
-    if (client_stat) {
-        debug( "Couldn't get client name %s", gai_strerror( client_stat));
+    if (client_stat < 0) {
+        debug("Unable to getnameinfo: %s", gai_strerror(client_stat));
         goto fail;
     }
 
     /* Open socket stream */
     r->stream = fdopen(r->fd, "w+");
-    if (!r->stream ) {
-        debug( "Unable to fdopen: %s", strerror(errno));
+    if (!r->stream) {
+        debug("Unable to fdopen: %s", strerror(errno));
         goto fail;
-    } 
+    }
 
     log("Accepted request from %s:%s", r->host, r->port);
     return r;
@@ -92,14 +91,22 @@ void free_request(Request *r) {
     if (r->stream) { 
         fclose(r->stream); 
     }
-
     else {
         close(r->fd);
     }
-    if (r->method) {  free(r->method);  }
-    if (r->uri) {  free(r->uri);  }
-    if (r->path) {  free(r->path); }
-    if (r->query) {  free(r->query); }
+
+    if (r->method) {
+        free(r->method);  
+    }
+    if (r->uri) {
+        free(r->uri);  
+    }
+    if (r->path) {
+        free(r->path); 
+    }
+    if (r->query) {
+        free(r->query); 
+    }
 
     /* Free headers */
     Header *curr = r->headers;
@@ -130,14 +137,14 @@ int parse_request(Request *r) {
 
     /* Parse HTTP Request Method */
     int http_met = parse_request_method(r);
-    if (http_met < 0){
+    if (http_met < 0) {
         debug("Unable to parse request method: %s", strerror(errno));
         return -1;
     }
 
     /* Parse HTTP Requet Headers*/
     int http_head = parse_request_headers(r);
-    if (http_head < 0 ) {
+    if (http_head < 0) {
         debug("Unable to parse request headers: %s", strerror(errno));
         return -1;
     }
@@ -173,7 +180,7 @@ int parse_request_method(Request *r) {
     }    
 
     /* Parse method and uri */      
-    method = strtok( buffer, WHITESPACE);
+    method = strtok(buffer, WHITESPACE);
     uri = strtok(NULL, WHITESPACE);
 
     if (!method || !uri) {
@@ -186,7 +193,7 @@ int parse_request_method(Request *r) {
         query = "";
     }
 
-    else{               // advance past the ? character
+    else {
         *query = '\0';
         query++;
     }
@@ -287,7 +294,6 @@ int parse_request_headers(Request *r) {
         debug("Header: %s  %s", newHeader->name, newHeader->data);
         
     }
-
 
 #ifndef NDEBUG
     for (Header *header = r->headers; header; header = header->next) {

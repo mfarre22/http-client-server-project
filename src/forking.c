@@ -40,18 +40,17 @@ int forking_server(int sfd) {
         }
         else if(pid == 0) { // child
             close(sfd);
-            handle_request( r );
+            handle_request(r);
             exit(EXIT_SUCCESS);
         }
-        else{               
+        else {               
             free_request(r);
         }
 
-            
-         }
+    }
 
     /* Close server socket */       
-        close( r->fd);
+        close(r->fd);
 
     return EXIT_SUCCESS;
 }
