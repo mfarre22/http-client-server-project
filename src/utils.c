@@ -55,17 +55,14 @@ char * determine_mimetype(const char *path) {
     }
 
     /* Scan file for matching file extensions */
-    while(fgets(buffer, BUFSIZ, fs)){      // read line-by-line
-        
+    while(fgets(buffer, BUFSIZ, fs)) {
         mimetype = strtok(skip_whitespace(buffer), WHITESPACE);
 
-        while((token = strtok(NULL, WHITESPACE))) {         // iterate over tokens
-
+        while((token = strtok(NULL, WHITESPACE))) {
             if(streq(token, ext)) {
                 mimetype = strdup(mimetype);
                 return mimetype;
             }
-            
         }
     }
 
@@ -100,10 +97,11 @@ char * determine_request_path(const char *uri) {
     char root_plus_uri[BUFSIZ];
     char resolved_path[BUFSIZ];         
  
-    sprintf( root_plus_uri, "%s/%s", RootPath, uri); // concatenate Root, uri
-      realpath(root_plus_uri, resolved_path);  // get the realpath
+    /* Concatenate RootPath and uri */
+    sprintf(root_plus_uri, "%s/%s", RootPath, uri);
+    realpath(root_plus_uri, resolved_path);
     
-    if ( strncmp( resolved_path ,RootPath, strlen(RootPath) ) != 0 ){           // security check
+    if (strncmp(resolved_path, RootPath, strlen(RootPath)) != 0){
        return NULL;
     }
     
@@ -128,11 +126,11 @@ const char * http_status_string(Status status) {
     };
 
     //make sure status is within the array bounds
-    if (status < (sizeof(StatusStrings) / sizeof( char *)) ){
+    if (status < (sizeof(StatusStrings) / sizeof(char *))) {
         return StatusStrings[status];
-        }   
-    else{
-            return NULL;
+    }   
+    else {
+        return NULL;
     }
 }
 

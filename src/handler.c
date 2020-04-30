@@ -42,8 +42,8 @@ Status  handle_request(Request *r) {
     char * path = determine_request_path(r->uri);
     r->path = path;
 
-    if (!r->path){
-        result = handle_error( r, HTTP_STATUS_BAD_REQUEST);
+    if (!r->path) {
+        result = handle_error(r, HTTP_STATUS_BAD_REQUEST);
         return result;
     }
 
@@ -57,26 +57,22 @@ Status  handle_request(Request *r) {
        return result;
     }
 
-    else if (stat (r->path, &s) == 0){   
-        debug("browse request");
-         if (S_ISDIR(s.st_mode) ) {
+    else if (stat (r->path, &s) == 0) {   
+         if (S_ISDIR(s.st_mode)) {
                 result = handle_browse_request(r);
                 return result;
-             }
+         }
     }
 
-    if (access(r->path, X_OK) == 0){ 
-        debug("cgi");
+    if (access(r->path, X_OK) == 0) { 
         result = handle_cgi_request(r);
     }
 
     else if (access(r->path, R_OK) == 0) {
-        debug("file");
         result = handle_file_request(r);
     }
 
     log("HTTP REQUEST STATUS: %s", http_status_string(result));
-
 
     return result;
 }
@@ -109,11 +105,14 @@ Status  handle_browse_request(Request *r) {
 
     /* For each entry in directory, emit HTML list item */
     fprintf(r->stream, "<ul>\n");
+
     for(int i = 0; i < n ; i++) {
         if(streq(entries[i]->d_name, ".")) {
+            free(entries[i]);
             continue;
         }
 
+        /* Format differently if uri is "/" */
         if(streq(r->uri, "/")) {
             fprintf(r->stream, "<li> <a href=\"/%s\"> %s </a> </li>\n", entries[i]->d_name, entries[i]->d_name);
         }
@@ -122,9 +121,12 @@ Status  handle_browse_request(Request *r) {
             fprintf(r->stream, "<li> <a href=\"%s/%s\"> %s </a> </li>\n", r->uri, entries[i]->d_name, entries[i]->d_name);
         }
 
+        free(entries[i]);
     }
 
     fprintf(r->stream, "</ul>\n");
+
+    free(entries);
 
     /* Return OK */
     return HTTP_STATUS_OK;
@@ -159,10 +161,8 @@ Status  handle_file_request(Request *r) {
         status = handle_error(r, HTTP_STATUS_NOT_FOUND);
         return status;
     }
-    debug("opened file");
 
     /* Determine mimetype */
-    debug("determining mimetype\n");
     mimetype = determine_mimetype( r->path );
     debug("mimetype: %s", mimetype);
 
@@ -171,8 +171,6 @@ Status  handle_file_request(Request *r) {
     fprintf(r->stream, "Content-Type: %s\r\n", mimetype);
     fprintf(r->stream, "\r\n");
 
-    //fprintf(r->stream, "<h1> Test test, remove from handlefilerequest</h1>");
-
     /* Read from file and write to socket in chunks */
     nread = fread(buffer, 1, BUFSIZ, fs);
     debug("about to read from file");
@@ -180,11 +178,11 @@ Status  handle_file_request(Request *r) {
         fwrite(buffer, 1, nread, r->stream);
         nread = fread(buffer, 1, BUFSIZ, fs);
     }
-    debug("after reading from file");
+
+    debug("Done reading from file");
 
     /* Close file, deallocate mimetype, return OK */
     fclose(fs);
-    debug("after closing file");
     if(mimetype) {
         free(mimetype);
     }
@@ -260,7 +258,6 @@ Status  handle_cgi_request(Request *r) {
     }
 
     /* POpen CGI Script */
-    debug("handle cgi process: about to popen");
     FILE *process_stream = popen(r->path, "r");
     if(!process_stream) {
         debug("error opening path with popen: %s\n", strerror(errno));
@@ -272,7 +269,7 @@ Status  handle_cgi_request(Request *r) {
     char buffer[BUFSIZ];
     size_t nread = fread(buffer, 1, BUFSIZ, process_stream);
 
-    debug(" CGI: reading from process stream\n");
+    debug("CGI: reading from process stream\n");
     while(nread > 0) {
         fwrite(buffer, 1, nread, r->stream);
         nread = fread(buffer, 1, BUFSIZ, process_stream);
@@ -304,11 +301,10 @@ Status  handle_error(Request *r, Status status) {
     fprintf(r->stream, "\r\n");
 
     /* Write HTML Description of Error*/
-    fprintf( r->stream, " <h1>%s </h1>\r\n", status_string);
+    fprintf(r->stream, " <h1>%s </h1>\r\n", status_string);
     fprintf(r->stream, "Something bad has happened. You're really screwed this time </body> \r\n"); 
         
     /* Return specified status */
-
     return status;
 }
 

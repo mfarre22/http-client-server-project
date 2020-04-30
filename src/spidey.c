@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     int status; 
 
     /* Parse command line options */
-    bool command_success = parse_options( argc, argv, &mode );
+    bool command_success = parse_options(argc, argv, &mode);
     if (command_success == false) {
         debug("Problem with command line arguments");
         return EXIT_FAILURE;
@@ -98,15 +98,15 @@ int main(int argc, char *argv[]) {
 
     /* Listen to server socket */
      int server_fd = socket_listen(Port);
-     if (server_fd < 0){
+     if (server_fd < 0) {
         return EXIT_FAILURE;
-        }
+    }
 
     /* Determine real RootPath */
-     RootPath =  realpath( RootPath, NULL);
-    if ( !RootPath) {
+    RootPath = realpath(RootPath, NULL);
+    if (!RootPath) {
         debug("Could not determine root Path: %s", strerror(errno));
-        }
+    }
 
     log("Listening on port %s", Port);
     debug("RootPath        = %s", RootPath);
@@ -115,16 +115,17 @@ int main(int argc, char *argv[]) {
     debug("ConcurrencyMode = %s", mode == SINGLE ? "Single" : "Forking");
 
     /* Start either forking or single HTTP server */
-    if (mode == SINGLE){
+    if (mode == SINGLE) {
         printf("single HTTP server");
-        status = single_server( server_fd);
-        }
+        status = single_server(server_fd);
+    }
     else if (mode == FORKING) {
-        status = forking_server( server_fd);
-        }
-    else{
+        status = forking_server(server_fd);
+    }
+    else {
         return EXIT_FAILURE;
-        }
+    }
+
     return status;
 }
 
