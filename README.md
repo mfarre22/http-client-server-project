@@ -9,8 +9,8 @@ This is the [Final Project] for [CSE 20289 Systems Programming (Spring 2020)].
 
 ## Demonstration
 
-https://youtu.be/HGAu8wb5HWI
-
+VIDEO MUST BE VIEWED ON 720p60
+https://youtu.be/HGAu8wb5HWI 
 
 ## Errata
 
