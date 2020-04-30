@@ -13,18 +13,18 @@ VIDEO MUST BE VIEWED ON 720p60
 https://youtu.be/HGAu8wb5HWI 
 
 ## Errata
-
+Currently, there are no known deficiencies or problems with our implementation.
 
 ## Contributions
 
-Thor.py - Maggie 
-Socket.c - Maggie,  debugs from Sara
-Request.c - Sara, Maggie + Sara fixed functions together
-Handler.c - Maggie [browsing, cgi, file] + Sara [handling + errors], debugging together
-Single.c - Maggie, minimal debugs from Sara
-Forking.c - both
-Spidey.c - Sara, debugs from Maggie
-Utils.c - functions mainly together
+- Thor.py - Maggie 
+- Socket.c - Maggie,  debugs from Sara
+- Request.c - Sara, Maggie + Sara fixed functions together
+- Handler.c - Maggie [browsing, cgi, file] + Sara [handling + errors], debugging together
+- Single.c - Maggie, minimal debugs from Sara
+- Forking.c - both
+- Spidey.c - Sara, debugs from Maggie
+- Utils.c - functions mainly together
 
 
 [Final Project]: https://www3.nd.edu/~pbui/teaching/cse.20289.sp20/project.html
